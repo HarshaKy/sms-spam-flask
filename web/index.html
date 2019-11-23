@@ -1,1 +1,38 @@
 <!DOCTYPE html>
+<html>
+    <head>
+        <title>Home</title>
+        <link rel="stylesheet" type="text/css" href="{{ url_for('css', filename='css/styles.css') }}">
+    </head>
+
+    <body>
+
+
+        <header>
+            <div class="container">
+                <div id="headerText">
+                    ML App Using Flask
+                </div>
+
+                <h2>Detect Spam SMS</h2>
+
+            </div>
+        </header>
+
+        <div class="ml-container">
+
+            <form action="{{ url_for('predict')}}" method="POST">
+
+                <p>Enter Message</p>
+                <textarea name="message" rows="4" cols="50"></textarea> <br>
+
+                <input type="submit" class="button" value="predict">
+
+            </form>
+
+        </div>
+
+
+    </body>
+
+</html>

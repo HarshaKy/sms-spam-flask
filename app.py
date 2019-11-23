@@ -1,31 +1,52 @@
 import pandas as pd
 import numpy as  np
-import joblib
+import pickle
+# import joblib
 
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.model_selection import train_test_split
 from sklearn.naive_bayes import MultinomialNB
-from sklearn.metrics import classification_report
+from flask import Flask, render_template, url_for, request
+# from sklearn.metrics import classification_report
 
-df = pd.read_csv('spam.csv', encoding="latin-1")
-df.drop(['Unnamed: 2', 'Unnamed: 3', 'Unnamed: 4'], axis=1, inplace=True)
-df['label'] = df['v1'].map({'ham': 0, 'spam': 1})
+app = Flask(__name__)
 
-x = df['v2']
-y = df['label']
+@app.route('/')
+def index():
+    return render_template('index.html')
 
-cv = CountVectorizer()
+@app.route('/predict', methods=['POST'])
+def predict():
+    df = pd.read_csv('spam.csv', encoding="latin-1")
+    df.drop(['Unnamed: 2', 'Unnamed: 3', 'Unnamed: 4'], axis=1, inplace=True)
+    df['label'] = df['v1'].map({'ham': 0, 'spam': 1})
 
-x = cv.fit_transform(x)
+    x = df['v2']
+    y = df['label']
 
-xtrain, xtest, ytrain, ytest =  train_test_split(x, y, test_size = 0.3, random_state=42)
+    cv = CountVectorizer()
 
-clf = MultinomialNB()
-clf.fit(xtrain, ytrain)
-clf.score(xtest, ytest)
+    x = cv.fit_transform(x)
 
-ypred = clf.predict(xtest)
+    xtrain, xtest, ytrain, ytest =  train_test_split(x, y, test_size = 0.3, random_state=42)
 
-print(classification_report(ytest, ypred))
+    clf = MultinomialNB()
+    clf.fit(xtrain, ytrain)
+    clf.score(xtest, ytest)
 
-joblib.dump(clf, 'model/spam.pkl')
+    # ypred = clf.predict(xtest)
+
+    if request.method == 'POST':
+        message = request.form['v2']
+        data = [message]
+        vect = cv.transform(data).toarray()
+        my_prediction = clf.predict(vect)
+    
+    return render_template('result.html', prediction=my_prediction)
+
+    # print(classification_report(ytest, ypred))
+
+    # joblib.dump(clf, 'model/spam.pkl')
+
+if __name__ == '__main__':
+    app.run(debug=True)
