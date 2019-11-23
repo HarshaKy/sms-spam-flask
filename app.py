@@ -37,7 +37,7 @@ def predict():
     # ypred = clf.predict(xtest)
 
     if request.method == 'POST':
-        message = request.form['v2']
+        message = request.form['message']
         data = [message]
         vect = cv.transform(data).toarray()
         my_prediction = clf.predict(vect)
